@@ -1,4 +1,4 @@
-week-1-------------------------------------------------------------
+week-1a-------------------------------------------------------------
 
 client.py-------------------------
 import socket
@@ -22,6 +22,91 @@ print("Received Hello Packet:", hello_msg)
 conn.send("HELLO ACK".encode())
 conn.close()
 
+
+
+week-1b-----------------------------------------------------------------------
+
+
+Server Program (serverhello.py)---------------------------- 
+
+import socket
+server = socket.socket()
+server.bind(("127.0.0.1", 9999))
+server.listen(1)
+print("Server waiting for HELLO packet on port 9999...")
+conn, addr = server.accept()
+print("Connected to:", addr)
+hello_msg = conn.recv(1024).decode()
+print("Received Hello Packet:", hello_msg)
+conn.send("HELLO ACK".encode())
+conn.close()
+
+
+Client Program (clienthello.py) -----------------------------------
+
+import socket
+client = socket.socket()
+client.connect(("127.0.0.1", 9999))
+client.send("HELLO PACKET".encode())
+response = client.recv(1024).decode()
+print("Server Response:", response)
+client.close()
+
+
+week-2-------------------------------------------------------------------------
+
+Serverrip.py----------------------------------
+
+import socket  
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
+  
+server_socket.bind(("0.0.0.0", 520)) 
+print("RIP server is running...") 
+ 
+while True: 
+    try: 
+         
+        data, addr = server_socket.recvfrom(1024) 
+        print(f"Received RIP request from {addr}") 
+ 
+        print(f"Request Data: {data}") 
+        response = b'\x02\x02\x00\x00' + b'\x00\x00\x00\x00' * 5  # Dummy response 
+ 
+        server_socket.sendto(response, addr) 
+        print(f"Sent RIP response to {addr}") 
+ 
+    except Exception as e: 
+        print(f"An error occurred: {e}") 
+        break 
+ 
+ 
+ 
+Clientrip.py ---------------------------------------------------
+ 
+import socket 
+  
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
+ 
+ 
+server_address = ("127.0.0.1", 520) 
+ 
+try: 
+ 
+    request = b'\x01\x02\x00\x00' + b'\x00\x00\x00\x00' * 5  # Dummy request 
+ 
+
+    client_socket.sendto(request, server_address) 
+    print(f"Sent RIP request to {server_address}") 
+ 
+    response, addr = client_socket.recvfrom(1024) 
+    print(f"Received RIP response from {addr}: {response}") 
+ 
+except Exception as e: 
+    print(f"An error occurred: {e}") 
+ 
+finally: 
+    # Close the client socket 
+    client_socket.close()
 
 week-5-----------------------------------------------------------------------
 
@@ -284,3 +369,93 @@ print("Encrypted Text:", cipher)
 decrypt_pad = aes.decrypt(cipher)
 decrypt = unpad(decrypt_pad, 16)
 print("Decrypted Text:", decrypt)
+
+
+week-10-------------------------------------------------------------
+
+p = int(input("Enter prime number p: "))
+g = int(input("Enter primitive root g: "))
+
+a = int(input("Enter private key of User A: "))
+b = int(input("Enter private key of User B: "))
+
+A = pow(g, a, p)
+B = pow(g, b, p)
+
+keyA = pow(B, a, p)
+keyB = pow(A, b, p)
+
+print("Public key of A:", A)
+print("Public key of B:", B)
+print("Secret key at A:", keyA)
+print("Secret key at B:", keyB)
+
+
+week-11-------------------------------------------------------------
+
+p = int(input("Enter prime number p: "))
+q = int(input("Enter prime number q: "))
+
+n = p * q
+phi = (p - 1) * (q - 1)
+
+def gcd(a, b):
+    while b != 0:
+        a, b = b, a % b
+    return a
+
+while True:
+    e = input("Enter public key e: ")
+    if e.isdigit() and gcd(int(e), phi) == 1:
+        e = int(e)
+        break
+    print("Invalid e, try again")
+
+d = pow(e, -1, phi)
+
+msg = int(input("Enter message: "))
+
+cipher = pow(msg, e, n)
+plain = pow(cipher, d, n)
+
+print("Encrypted message:", cipher)
+print("Decrypted message:", plain)
+
+
+week-12-------------------------------------------------------------
+
+Step1: Step 1: Install GPG
+GPG (GNU Privacy Guard) is an encryption tool used to generate keys, sign files, and verify signatures.
+On Windows, GPG is installed using Gpg4win.
+Step 2: Generate GPG Key Pair
+Using the command gpg --gen-key, a public key and private key are generated.
+•	Public key → shared with others
+•	Private key → kept secret and protected using a passphrase
+This key pair is required for creating and verifying digital signatures.
+Step 3: Create a File to Sign
+A text file is created that acts as the message or data to be signed.
+Example: file.txt
+This file represents the information whose authenticity and integrity must be ensured.
+Step 4: Sign the File
+The command gpg --sign file.txt is used to create a digital signature.
+•	GPG hashes the file
+•	The hash is encrypted using the private key
+•	A new signed file (file.txt.gpg) is created
+This signed file contains both the original data and the signature.
+Step 5: Enter Passphrase
+During signing, GPG asks for the passphrase of the private key.
+This ensures that only the legitimate owner can create the digital signature.
+Step 6: Verify the Signed File
+The command gpg --verify file.txt.gpg is used to verify the digital signature.
+•	GPG decrypts the signature using the public key
+•	GPG hashes the received file again
+•	Both hashes are compared
+If both hashes match, the signature is valid.
+Step 7: List GPG Keys
+The command gpg --list-keys displays all public keys available in the system.
+This helps in identifying the key used for signing and verification.
+
+
+
+
+
